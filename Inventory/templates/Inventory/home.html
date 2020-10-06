@@ -1,0 +1,110 @@
+{% extends 'Inventory/base.html' %}
+{% block content %}
+<div class="py-2">
+    <a href="{% url 'home' %}" class="display-4 text-dark" style="text-decoration: none;">GLUA PHARMACY</a>
+    <form action="{% url 'search' %}" method="POST">
+        {% csrf_token %}
+
+        <div class="input-group">
+            <input class="form-control form-control-sm" type="text" name="q" placeholder="Search Drug"
+                aria-label="Recipient's " aria-describedby="my-addon">
+            <div class="input-group-append">
+                <button type="submit" class="btn btn-dark btn-sm">Search</button>
+            </div>
+        </div>
+    </form>
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <th style='border-top:none'>
+                                    Drug Name
+                                </th>
+                            </div>
+                            <div class="col-md-2">
+                                <th style='border-top:none'>
+                                    Stock
+                                </th>
+                            </div>
+                            <div class="col-md-2">
+                                <th style='border-top:none'>
+                                    Price
+                                </th>
+                            </div>
+                            <div class="col-md-2">
+                                <th style='border-top:none'></th>
+                                <!-- <button class="btn btn-danger">Sell</button> -->
+                            </div>
+                        </div>
+                    </tr>
+                </thead>
+                <tbody>
+                    <div class="row">
+                        {% for drug in drugs%}
+                        <tr>
+                            <div class="col-md-6">
+                                <td>
+                                    {{drug.name}}
+                                </td>
+                            </div>
+                            <div class="col-md-2">
+                                <td>
+                                    {{drug.stock}}
+                                </td>
+                            </div>
+                            <div class="col-md-2">
+                                <td>
+                                    {{drug.price}}
+                                </td>
+                            </div>
+                            <div class="col-md-2">
+                                <td>
+                                    <a href="{% url 'sell' drug.pk %}" class="btn btn-danger">Sell</a>
+                                </td>
+                            </div>
+                        </tr>
+                        <tr>
+                            <td>
+                                <!-- class view pagination -->
+                                {% endfor %}
+                                {% if is_paginated %}
+                                {% if page_obj.has_previous %}
+                                <a href="?page=1" class="btn btn-outline-primary">First</a>
+                                <a href="?page={{page_obj.previous_page_number}}"
+                                    class="btn btn-outline-primary">Previous</a>
+                                {% endif %}
+
+                                {% for num in page_obj.paginator.page_range %}
+                                {% if page_obj.number == num %}
+                                <a href="?page={{num}}" class="btn btn-primary text-white bg-primary">{{ num }}</a>
+
+                                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <a href="?page={{ num }}" class="btn btn-outline-primary">{{ num }}</a>
+                                {% endif %}
+
+                                {% endfor %}
+
+                                {% if page_obj.has_next %}
+                                <a href="?page={{page_obj.next_page_number}}" class="btn btn-outline-primary">Next</a>
+                                <a href="?page={{page_obj.paginator.num_pages}}"
+                                    class="btn btn-outline-primary">Last</a>
+                                {% endif %}
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </div>
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer d-flex">
+            {% if user.is_superuser %}
+            <a href="{% url 'create' %}" class="btn sharp btn-dark mr-2">Add New Drug</a>
+            {% endif %}
+            <a href="{% url 'stocking' %}" class="btn sharp btn-warning ml-auto">Add Stock</a>
+        </div>
+    </div>
+</div>
+{% endblock content %}
