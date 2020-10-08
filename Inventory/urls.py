@@ -12,4 +12,6 @@ urlpatterns = [
     path('sell/<int:pk>/', views.sellDrug, name='sell'),
     path('search/', views.search, name='search'),
     path('search/stock/', views.searchstock, name='searchstock'),
+    path('history/', views.salehistory, name='history'),
+    path('today/', views.todaysales, name='today'),
 ]

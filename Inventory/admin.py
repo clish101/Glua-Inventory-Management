@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import Drug
+from .models import Sale
 
-admin.site.register(Drug)
+admin.register(Drug,Sale)(admin.ModelAdmin)
 # Register your models here.

@@ -31,19 +31,27 @@
                             </div>
                             <div class="col-md-2">
                                 <th style='border-top:none'>
-                                    Price
+
+                                    <div class="row">
+                                        <div class="col ml-5">
+                                            Minimum Price
+                                        </div>
+                                        <div class="col">
+                                            Selling Price
+                                        </div>
+                                        <div class="col">
+                                            Maximum Price
+                                        </div>
+                                    </div>
                                 </th>
                             </div>
-                            <div class="col-md-2">
-                                <th style='border-top:none'></th>
-                                <!-- <button class="btn btn-danger">Sell</button> -->
-                            </div>
+
                         </div>
                     </tr>
                 </thead>
                 <tbody>
-                    <div class="row">
-                        {% for drug in drugs%}
+                    <div class="row d-flex align-items-center">
+                        {% for drug in drugs %}
                         <tr>
                             <div class="col-md-6">
                                 <td>
@@ -55,16 +63,38 @@
                                     {{drug.stock}}
                                 </td>
                             </div>
-                            <div class="col-md-2">
+                            <div class="col-md-4">
                                 <td>
-                                    {{drug.price}}
+                                    <div class="row">
+                                        <div class="col ml-5">
+                                            <span>{{drug.buying_price}}</span>
+                                        </div>
+                                        <div class="col">
+                                            <form action="{% url 'sell' drug.id %}" method="GET">
+                                                {% csrf_token %}
+                                                <div class="input-group">
+                                                    <input class="form-control" min="{{drug.buying_price}}"
+                                                        type="number" name="sellAt"
+                                                        placeholder="{{drug.name}} selling price"
+                                                        aria-label="Recipient's " aria-describedby="my-addon" required>
+                                                    <div class="input-group-append">
+                                                        <button type="submit"
+                                                            class="btn btn-danger btn-sm">Sell</button>
+                                                    </div>
+                                                </div>
+
+                                            </form>
+                                        </div>
+                                        <div class="col">
+                                            <span>{{drug.maximum_price}}</span>
+                                        </div>
+                                    </div>
+
+
+
                                 </td>
                             </div>
-                            <div class="col-md-2">
-                                <td>
-                                    <a href="{% url 'sell' drug.pk %}" class="btn btn-danger">Sell</a>
-                                </td>
-                            </div>
+
                         </tr>
                         <tr>
                             <td>
@@ -103,6 +133,7 @@
             {% if user.is_superuser %}
             <a href="{% url 'create' %}" class="btn sharp btn-dark mr-2">Add New Drug</a>
             {% endif %}
+            <a href="{% url 'history' %}" class="btn sharp btn-dark mr-2">SALES HISTORY</a>
             <a href="{% url 'stocking' %}" class="btn sharp btn-warning ml-auto">Add Stock</a>
         </div>
     </div>
