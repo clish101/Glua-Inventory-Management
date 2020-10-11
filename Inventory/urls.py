@@ -9,6 +9,7 @@ urlpatterns = [
     path('create/', views.createDrug, name='create'),
     path('addstock/<int:pk>/', views.addStock, name='addstock'),
     path('stocking/', stockingListView.as_view(), name='stocking'),
+    path('stocked/', views.StockAdded, name='stocked'),
     path('sell/<int:pk>/', views.sellDrug, name='sell'),
     path('search/', views.search, name='search'),
     path('search/stock/', views.searchstock, name='searchstock'),

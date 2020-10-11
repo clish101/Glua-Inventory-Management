@@ -17,6 +17,9 @@ from django.contrib import admin
 from django.urls import path, include
 from django.contrib.auth import views as auth_views
 
+admin.site.site_header = "Glua Administration"
+admin.site.site_title = "Glua Admin"
+admin.site.index_title = "Welcome to Glua"
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('Inventory.urls')),

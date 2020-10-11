@@ -57,7 +57,8 @@
                                     {{sale.sale_price}}
                                 </td>
                             </div>
-
+                            {% empty %}
+                            <td>Nothing much is happening Today</td>
                         </tr>
                         {% endfor %}
                     </div>
@@ -66,7 +67,9 @@
 
             </table>
             <h4 class="float-right mr-5"><strong>TOTAL SALES Ksh {{sale_price__sum|intcomma}}</strong></h4>
+            {% if user.is_superuser %}
             <h4 class="float-left mr-5"><strong>RUNNING PROFIT Ksh {{profit|intcomma}}</strong></h4>
+            {% endif %}
         </div>
         <div class="card-footer d-flex">
             {% if user.is_superuser %}

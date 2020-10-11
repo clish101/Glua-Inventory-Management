@@ -115,6 +115,7 @@
         <div class="card-footer d-flex">
             {% if user.is_superuser %}
             <a href="{% url 'create' %}" class="btn sharp btn-dark mr-2">Add New Drug</a>
+            <a href="{% url 'stocked' %}" class="btn sharp btn-dark mr-2">STOCK HISTORY</a>
             {% endif %}
             <a href="{% url 'home' %}" class="btn sharp btn-warning ml-auto">Return to Glua</a>
         </div>

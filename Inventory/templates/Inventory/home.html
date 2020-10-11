@@ -132,7 +132,11 @@
         <div class="card-footer d-flex">
             {% if user.is_superuser %}
             <a href="{% url 'create' %}" class="btn sharp btn-dark mr-2">Add New Drug</a>
+            <a href="{% url 'stocked' %}" class="btn sharp btn-dark mr-2">STOCK HISTORY</a>
             {% endif %}
+            <a href="{% url 'today' %}" class="btn sharp btn-dark mr-2" style="text-decoration: none;">
+                TODAY'S SALES
+            </a>
             <a href="{% url 'history' %}" class="btn sharp btn-dark mr-2">SALES HISTORY</a>
             <a href="{% url 'stocking' %}" class="btn sharp btn-warning ml-auto">Add Stock</a>
         </div>

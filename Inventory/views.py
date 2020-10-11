@@ -1,7 +1,6 @@
 from django.shortcuts import render, redirect
 from django.db.models import Sum
-from .models import Drug
-from .models import Sale
+from .models import Drug, Sale, Stocked
 from .forms import DrugCreation
 from django.contrib import messages
 from django.views.generic import ListView
@@ -19,7 +18,7 @@ class DrugListView(ListView):
     context_object_name = 'drugs'
     paginate_by = 5
     ordering = ['name']
-    
+
 
 @login_required
 def createDrug(request):
@@ -37,16 +36,20 @@ def createDrug(request):
 
         context = {'form': form}
         return render(request, 'Inventory/create.html', context)
-        
+
     except:
-        messages.success(request, 'Seems like the drug is already part of the inventory')
+        messages.success(
+            request, 'Seems like the drug is already part of the inventory')
         return redirect('create')
+
 
 @login_required
 def addStock(request, pk):
     drug = Drug.objects.get(id=pk)
     amount_added = int(request.POST.get('added'))
     drug.stock += amount_added
+    Stocked.objects.create(
+        drug_name=drug, staff=request.user, number_added=amount_added, total=drug.stock)
     drug.save()
     messages.success(request, f'{amount_added} {drug.name} added')
     return redirect('stocking')
@@ -62,15 +65,17 @@ class stockingListView(ListView):
 
 @login_required
 def sellDrug(request, pk):
-    price=request.GET.get('sellAt')
+    price = request.GET.get('sellAt')
     drug = Drug.objects.get(id=pk)
     drug.selling_price = price
     drug.stock -= 1
     drug.save()
     print(price)
-    Sale.objects.create(seller=request.user,drug_sold=drug, sale_price=drug.selling_price, buying_price=drug.buying_price).save()
+    Sale.objects.create(seller=request.user, drug_sold=drug,
+                        sale_price=drug.selling_price, buying_price=drug.buying_price).save()
     messages.success(request, f'One {drug.name} sold')
     return redirect('home')
+
 
 def search(request):
     drugs = Drug.objects.all().order_by('name')
@@ -79,8 +84,9 @@ def search(request):
     if query:
         drugs = Drug.objects.filter(Q(name__icontains=query))
 
-    context = {'drugs':drugs}
+    context = {'drugs': drugs}
     return render(request, 'Inventory/home.html', context)
+
 
 def searchstock(request):
     drugs = Drug.objects.all().order_by('name')
@@ -89,15 +95,17 @@ def searchstock(request):
     if query:
         drugs = Drug.objects.filter(Q(name__icontains=query))
 
-    context = {'drugs':drugs}
+    context = {'drugs': drugs}
     return render(request, 'Inventory/stock.html', context)
 
+
 def salehistory(request):
-    start_date=request.GET.get('start_date')
+    start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
     if start_date and end_date:
-    
-        sales = Sale.objects.filter(date_sold__range=[start_date, end_date]).order_by('-date_sold')
+
+        sales = Sale.objects.filter(
+            date_sold__range=[start_date, end_date]).order_by('-date_sold')
         if sales:
             total_purchases = sales.aggregate(Sum('buying_price'))
             total_sales = sales.aggregate(Sum('sale_price'))
@@ -106,30 +114,35 @@ def salehistory(request):
             sold_at = total_sales.get('sale_price__sum')
 
             profit = sold_at - bought_at
+            context = {'sales': sales, 'profit': profit}
+            context.update(total_sales)
         else:
-            messages.success(request, 'Sorry no sales were done within those dates')
+            messages.success(
+                request, 'Sorry no sales were done within those dates')
+            context = {}
             return redirect('history')
-        
-        
+
     else:
-        today = datetime.now().date()
-        yesterday3 = today + timedelta(-2)
-        start_date = datetime.combine(yesterday3, time())
-        end_date = datetime.combine(today, time())
+        context = {}
+        # today = datetime.now().date()
+        # yesterday3 = today + timedelta(-3)
+        # start_date = datetime.combine(yesterday3, time())
+        # end_date = datetime.combine(today, time())
+        # try:
+        #     sales = Sale.objects.filter(date_sold__range=[start_date, end_date]).order_by('-date_sold')
+        #     total_purchases = sales.aggregate(Sum('buying_price'))
+        #     total_sales = sales.aggregate(Sum('sale_price'))
 
-        sales = Sale.objects.filter(date_sold__range=[start_date, end_date]).order_by('-date_sold')
-        total_purchases = sales.aggregate(Sum('buying_price'))
-        total_sales = sales.aggregate(Sum('sale_price'))
+        #     bought_at = total_purchases.get('buying_price__sum')
+        #     sold_at = total_sales.get('sale_price__sum')
 
-        bought_at = total_purchases.get('buying_price__sum')
-        sold_at = total_sales.get('sale_price__sum')
+        #     profit = sold_at - bought_at
+        # except:
+        #     messages.success(request, 'Sorry no sales were made within that time period')
+        #     return redirect('home')
 
-        profit = sold_at - bought_at
-        
-
-    context = {'sales': sales, 'profit':profit}
-    context.update(total_sales)
     return render(request, 'Inventory/history.html', context)
+
 
 def todaysales(request):
     today = datetime.now().date()
@@ -138,8 +151,9 @@ def todaysales(request):
     end_date = datetime.combine(tomorrow, time())
 
     if start_date and end_date:
-    
-        sales = Sale.objects.filter(date_sold__range=[start_date, end_date]).order_by('-date_sold')
+
+        sales = Sale.objects.filter(
+            date_sold__range=[start_date, end_date]).order_by('-date_sold')
         if sales:
             total_purchases = sales.aggregate(Sum('buying_price'))
             total_sales = sales.aggregate(Sum('sale_price'))
@@ -148,18 +162,45 @@ def todaysales(request):
             sold_at = total_sales.get('sale_price__sum')
 
             profit = sold_at - bought_at
+            context = {'sales': sales, 'profit': profit}
+            context.update(total_sales)
         else:
-            return messages.success(request, 'Sorry no sales were done within those dates')
+            messages.success(request, 'Sorry no sales were done today')
+            context = {}
+            return redirect('history')
+
     else:
-        sales = Sale.objects.all().order_by('-date_sold')
-        total_purchases = sales.aggregate(Sum('buying_price'))
-        total_sales = sales.aggregate(Sum('sale_price'))
+        context = {}
+        # today = datetime.now().date()
+        # yesterday3 = today + timedelta(-3)
+        # start_date = datetime.combine(yesterday3, time())
+        # end_date = datetime.combine(today, time())
+        # try:
+        #     sales = Sale.objects.filter(date_sold__range=[start_date, end_date]).order_by('-date_sold')
+        #     total_purchases = sales.aggregate(Sum('buying_price'))
+        #     total_sales = sales.aggregate(Sum('sale_price'))
 
-        bought_at = total_purchases.get('buying_price__sum')
-        sold_at = total_sales.get('sale_price__sum')
+        #     bought_at = total_purchases.get('buying_price__sum')
+        #     sold_at = total_sales.get('sale_price__sum')
 
-        profit = sold_at - bought_at
+        #     profit = sold_at - bought_at
+        # except:
+        #     messages.success(request, 'Sorry no sales were made within that time period')
+        #     return redirect('home')
 
-    context = {'sales': sales,'profit':profit}
-    context.update(total_sales)
     return render(request, 'Inventory/today.html', context)
+
+
+def StockAdded(request):
+    start_date = request.GET.get('date_start')
+    end_date = request.GET.get('date_end')
+    if start_date and end_date:
+
+        glua_stocked_days = Stocked.objects.filter(
+            date_added__range=[start_date, end_date]).order_by('-date_added')
+        context = {'stocked': glua_stocked_days}
+
+    else:
+        context = {}
+
+    return render(request, 'Inventory/stocked.html', context)
