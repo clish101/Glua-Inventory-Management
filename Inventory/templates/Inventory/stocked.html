@@ -23,7 +23,7 @@
                 <thead>
                     <tr>
                         <div class="row-fluid">
-                            <div class="span2 offset1">
+                            <div class="span2">
                                 <th style='border-top:none'>
                                     Staff On Duty
                                 </th>
@@ -31,6 +31,11 @@
                             <div class="span2">
                                 <th style='border-top:none'>
                                     Date Stocked
+                                </th>
+                            </div>
+                            <div class="span2">
+                                <th style='border-top:none'>
+                                    Supplier
                                 </th>
                             </div>
                             <div class="span2">
@@ -59,7 +64,7 @@
                         <tr>
 
 
-                            <div class="span2 offset1">
+                            <div class="span2">
                                 <td style='border-top:none'>
                                     {{stock.staff.username}}
                                 </td>
@@ -67,6 +72,11 @@
                             <div class="span2">
                                 <td style='border-top:none'>
                                     {{stock.date_added}}
+                                </td>
+                            </div>
+                            <div class="span2">
+                                <td style='border-top:none'>
+                                    {{stock.supplier}}
                                 </td>
                             </div>
                             <div class="span2">

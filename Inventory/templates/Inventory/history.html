@@ -23,24 +23,34 @@
                 <thead>
                     <tr>
                         <div class="row">
-                            <div class="col-md-3">
+                            <div class="col">
                                 <th style='border-top:none'>
                                     Staff On Duty
                                 </th>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col">
                                 <th style='border-top:none'>
                                     Date Sold
                                 </th>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col">
                                 <th style='border-top:none'>
                                     Drug Name
                                 </th>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col">
+                                <th style='border-top:none'>
+                                    Customer
+                                </th>
+                            </div>
+                            <div class="col">
                                 <th style='border-top:none'>
                                     Sold At
+                                </th>
+                            </div>
+                            <div class="col">
+                                <th style='border-top:none'>
+                                    Total
                                 </th>
                             </div>
 
@@ -51,25 +61,35 @@
                     <div class="row d-flex align-items-center">
                         {% for sale in sales %}
                         <tr>
-                            <div class="col-md-6">
+                            <div class="col">
                                 <td>
                                     {{sale.seller.username}}
                                 </td>
                             </div>
-                            <div class="col-md-2">
+                            <div class="col">
                                 <td>
                                     {{sale.date_sold}}
                                 </td>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col">
                                 <td>
+                                    {{sale.quantity}}
                                     {{sale.drug_sold}}
-                                    {{sale.drug_sold.buying_price}}
                                 </td>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col">
+                                <td>
+                                    {{sale.customer}}
+                                </td>
+                            </div>
+                            <div class="col">
                                 <td>
                                     {{sale.sale_price}}
+                                </td>
+                            </div>
+                            <div class="col">
+                                <td>
+                                    {{sale.total}}
                                 </td>
                             </div>
                             {% empty %}
@@ -89,7 +109,7 @@
             <a href="{% url 'today' %}" class="float-left mr-5" style="text-decoration: none;">
                 <h4><strong>TODAY'S SALES </strong></h4>
             </a>
-            <h4 class="float-right mr-5"><strong>TOTAL SALES Ksh {{sale_price__sum|intcomma}}</strong></h4>
+            <h4 class="float-right mr-5"><strong>TOTAL SALES Ksh {{total_sales|intcomma}}</strong></h4>
 
         </div>
         <div class="card-footer d-flex">

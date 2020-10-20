@@ -19,30 +19,49 @@
                 <thead>
                     <tr>
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col">
                                 <th style='border-top:none'>
                                     Drug Name
                                 </th>
                             </div>
-                            <div class="col-md-2">
+                            <div class="col">
+                                <th style='border-top:none'>
+                                    Category
+                                </th>
+                            </div>
+                            <div class="col">
                                 <th style='border-top:none'>
                                     Stock
                                 </th>
                             </div>
-                            <div class="col-md-2">
+                            <div class="col">
                                 <th style='border-top:none'>
-
-                                    <div class="row">
-                                        <div class="col ml-5">
-                                            Minimum Price
-                                        </div>
-                                        <div class="col">
-                                            Selling Price
-                                        </div>
-                                        <div class="col">
-                                            Maximum Price
-                                        </div>
+                                    Min Price
+                                </th>
+                            </div>
+                            <div class="col-5">
+                                <th style='border-top:none'>
+                                    <div class="d-flex justify-content-around">
+                                        <span>Quantity</span>
+                                        <span>Selling Price</span>
                                     </div>
+
+                                </th>
+                            </div>
+                            <div class="col">
+                                <th style='border-top:none'>
+                                    Max Price
+                                </th>
+                            </div>
+                            <div class="col">
+                                <th style='border-top:none'>
+                                    Customer
+                                </th>
+                            </div>
+
+                            <div class="col">
+                                <th style='border-top:none'>
+                                    Measurement units
                                 </th>
                             </div>
 
@@ -53,47 +72,79 @@
                     <div class="row d-flex align-items-center">
                         {% for drug in drugs %}
                         <tr>
-                            <div class="col-md-6">
+                            <div class="col">
+                                {% if user.is_superuser %}
+                                <td>
+                                    <a href="{% url 'modify' drug.pk %}" style="text-decoration: none;">
+                                        {{drug.name}}
+                                    </a>
+                                </td>
+                                {% else %}
                                 <td>
                                     {{drug.name}}
                                 </td>
+                                {% endif %}
                             </div>
-                            <div class="col-md-2">
+                            <div class="col">
+                                <td>
+                                    {{drug.category}}
+                                </td>
+                            </div>
+                            <div class="col">
                                 <td>
                                     {{drug.stock}}
                                 </td>
                             </div>
-                            <div class="col-md-4">
-                                <td>
-                                    <div class="row">
-                                        <div class="col ml-5">
-                                            <span>{{drug.buying_price}}</span>
+                            <div class="col">
+                                <td>{{drug.buying_price}}</td>
+                            </div>
+
+
+
+
+                            <div class="col-7">
+
+                                <form action="{% url 'sell' drug.id %}" method="GET">
+                                    {% csrf_token %}
+                                    <td>
+                                        <div class="input-group">
+                                            <input class="form-control" type="number" name="quantity"
+                                                placeholder="quantity" min="1" aria-label="Recipient's "
+                                                aria-describedby="my-addon" value="1">
+
+                                            <input class="form-control" min="{{drug.buying_price}}" type="number"
+                                                name="sellAt" placeholder="{{drug.name}} selling price"
+                                                aria-label="Recipient's " aria-describedby="my-addon" required>
+                                            <div class="input-group-append">
+                                                <button type="submit" class="btn btn-danger btn-sm">Sell</button>
+                                            </div>
                                         </div>
-                                        <div class="col">
-                                            <form action="{% url 'sell' drug.id %}" method="GET">
-                                                {% csrf_token %}
-                                                <div class="input-group">
-                                                    <input class="form-control" min="{{drug.buying_price}}"
-                                                        type="number" name="sellAt"
-                                                        placeholder="{{drug.name}} selling price"
-                                                        aria-label="Recipient's " aria-describedby="my-addon" required>
-                                                    <div class="input-group-append">
-                                                        <button type="submit"
-                                                            class="btn btn-danger btn-sm">Sell</button>
-                                                    </div>
-                                                </div>
+                                    </td>
+                                    <td>{{drug.maximum_price}}</td>
+                                    <td>
+                                        <div class="form-group">
 
-                                            </form>
+                                            <select id="my-select" class="form-control" name="customer">
+                                                <option selected value="Walk In">Walk In</option>
+                                                <option value="Prescription">Prescription</option>
+                                            </select>
                                         </div>
-                                        <div class="col">
-                                            <span>{{drug.maximum_price}}</span>
-                                        </div>
-                                    </div>
+                                    </td>
+                                </form>
+
+                            </div>
 
 
 
+
+                            <div class="col">
+                                <td class="text-right">
+                                    {{drug.measurement_units}}
                                 </td>
                             </div>
+
+
+
 
                         </tr>
                         <tr>

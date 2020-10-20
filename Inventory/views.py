@@ -1,9 +1,10 @@
 from django.shortcuts import render, redirect
 from django.db.models import Sum
+from django.db.models import F
 from .models import Drug, Sale, Stocked
 from .forms import DrugCreation
 from django.contrib import messages
-from django.views.generic import ListView
+from django.views.generic import ListView, UpdateView
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.core.paginator import Paginator
@@ -46,10 +47,11 @@ def createDrug(request):
 @login_required
 def addStock(request, pk):
     drug = Drug.objects.get(id=pk)
+    supp = request.POST.get('supplier')
     amount_added = int(request.POST.get('added'))
     drug.stock += amount_added
     Stocked.objects.create(
-        drug_name=drug, staff=request.user, number_added=amount_added, total=drug.stock)
+        drug_name=drug, supplier=supp, staff=request.user, number_added=amount_added, total=drug.stock)
     drug.save()
     messages.success(request, f'{amount_added} {drug.name} added')
     return redirect('stocking')
@@ -65,15 +67,17 @@ class stockingListView(ListView):
 
 @login_required
 def sellDrug(request, pk):
+    quantity = int(request.GET.get('quantity'))
+    customer = request.GET.get('customer')
     price = request.GET.get('sellAt')
     drug = Drug.objects.get(id=pk)
     drug.selling_price = price
-    drug.stock -= 1
+    drug.stock -= quantity
     drug.save()
     print(price)
-    Sale.objects.create(seller=request.user, drug_sold=drug,
-                        sale_price=drug.selling_price, buying_price=drug.buying_price).save()
-    messages.success(request, f'One {drug.name} sold')
+    Sale.objects.create(seller=request.user, drug_sold=drug, customer=customer,
+                        sale_price=drug.selling_price, quantity=quantity, buying_price=drug.buying_price).save()
+    messages.success(request, f'{quantity} {drug.name} sold')
     return redirect('home')
 
 
@@ -82,7 +86,8 @@ def search(request):
     query = request.POST.get('q')
 
     if query:
-        drugs = Drug.objects.filter(Q(name__icontains=query))
+        drugs = Drug.objects.filter(
+            Q(name__icontains=query) | Q(category__name__icontains=query))
 
     context = {'drugs': drugs}
     return render(request, 'Inventory/home.html', context)
@@ -107,15 +112,16 @@ def salehistory(request):
         sales = Sale.objects.filter(
             date_sold__range=[start_date, end_date]).order_by('-date_sold')
         if sales:
-            total_purchases = sales.aggregate(Sum('buying_price'))
-            total_sales = sales.aggregate(Sum('sale_price'))
+            total_sales = sales.aggregate(
+                total=Sum(F('quantity')*F('sale_price')))['total']
 
-            bought_at = total_purchases.get('buying_price__sum')
-            sold_at = total_sales.get('sale_price__sum')
+            bought_at = sales.aggregate(
+                total=Sum(F('quantity')*F('buying_price')))['total']
 
-            profit = sold_at - bought_at
-            context = {'sales': sales, 'profit': profit}
-            context.update(total_sales)
+            profit = total_sales - bought_at
+
+            context = {'sales': sales, 'profit': profit,
+                       'total_sales': total_sales}
         else:
             messages.success(
                 request, 'Sorry no sales were done within those dates')
@@ -155,15 +161,18 @@ def todaysales(request):
         sales = Sale.objects.filter(
             date_sold__range=[start_date, end_date]).order_by('-date_sold')
         if sales:
-            total_purchases = sales.aggregate(Sum('buying_price'))
-            total_sales = sales.aggregate(Sum('sale_price'))
 
-            bought_at = total_purchases.get('buying_price__sum')
-            sold_at = total_sales.get('sale_price__sum')
+            total_sales = sales.aggregate(
+                total=Sum(F('quantity')*F('sale_price')))['total']
 
-            profit = sold_at - bought_at
-            context = {'sales': sales, 'profit': profit}
-            context.update(total_sales)
+            bought_at = sales.aggregate(
+                total=Sum(F('quantity')*F('buying_price')))['total']
+
+            profit = total_sales - bought_at
+
+            context = {'sales': sales, 'profit': profit,
+                       'total_sales': total_sales}
+
         else:
             messages.success(request, 'Sorry no sales were done today')
             context = {}
@@ -204,3 +213,11 @@ def StockAdded(request):
         context = {}
 
     return render(request, 'Inventory/stocked.html', context)
+
+
+class modifyDrugUpdateView(UpdateView):
+    template_name = 'Inventory/create.html'
+    model = Drug
+    fields = ['name', 'category', 'buying_price',
+              'maximum_price', 'stock', 'measurement_units']
+    success_url = "/"

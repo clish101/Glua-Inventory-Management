@@ -65,6 +65,9 @@
                                     <form action="{% url 'addstock' drug.id %}" method="post">
                                         {% csrf_token %}
                                         <div class="input-group">
+                                            <input class="form-control" type="text" name="supplier"
+                                                placeholder="Supplier" aria-label="Recipient's "
+                                                aria-describedby="my-addon">
                                             <input class="form-control" type="number" name="added"
                                                 placeholder="Add stock for {{drug.name}}" aria-label="Recipient's "
                                                 aria-describedby="my-addon">
