@@ -87,7 +87,7 @@ def search(request):
 
     if query:
         drugs = Drug.objects.filter(
-            Q(name__icontains=query) | Q(category__name__icontains=query))
+            Q(name__icontains=query) | Q(category__name__icontains=query)|Q(ref_code__icontains=query))
 
     context = {'drugs': drugs}
     return render(request, 'Inventory/home.html', context)
@@ -218,6 +218,6 @@ def StockAdded(request):
 class modifyDrugUpdateView(UpdateView):
     template_name = 'Inventory/create.html'
     model = Drug
-    fields = ['name', 'category', 'buying_price',
+    fields = ['name', 'category', 'buying_price','minimum_price','ref_code',
               'maximum_price', 'stock', 'measurement_units']
     success_url = "/"

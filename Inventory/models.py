@@ -42,6 +42,8 @@ class Drug(models.Model):
     category = models.ForeignKey(
         Category, on_delete=models.PROTECT, null=True, blank=True)
     buying_price = models.FloatField()
+    minimum_price = models.FloatField(null=True, blank=True)
+    ref_code = models.CharField(unique=True,max_length=200,null=True, blank=True)
     selling_price = models.FloatField(null=True)
     maximum_price = models.FloatField()
     stock = models.IntegerField()
@@ -129,4 +131,4 @@ class Stocked(models.Model):
             val = getattr(self, field_name, False)
             if val:
                 setattr(self, field_name, val.capitalize())
-        super(Drug, self).save(*args, **kwargs)
+        super(Stocked, self).save(*args, **kwargs)

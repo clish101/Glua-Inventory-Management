@@ -36,6 +36,11 @@
                             </div>
                             <div class="col">
                                 <th style='border-top:none'>
+                                    Ref Code
+                                </th>
+                            </div>
+			<div class="col">
+                                <th style='border-top:none'>
                                     Min Price
                                 </th>
                             </div>
@@ -50,7 +55,7 @@
                             </div>
                             <div class="col">
                                 <th style='border-top:none'>
-                                    Max Price
+                                    Normal Price
                                 </th>
                             </div>
                             <div class="col">
@@ -61,7 +66,7 @@
 
                             <div class="col">
                                 <th style='border-top:none'>
-                                    Measurement units
+                                    Units
                                 </th>
                             </div>
 
@@ -96,19 +101,22 @@
                                 </td>
                             </div>
                             <div class="col">
-                                <td>{{drug.buying_price}}</td>
+                                <td>{{drug.ref_code}}</td>
+                            </div>
+			    <div class="col">
+                                <td>{{drug.minimum_price}}</td>
                             </div>
 
 
 
 
-                            <div class="col-7">
+                            <div class="col-2">
 
                                 <form action="{% url 'sell' drug.id %}" method="GET">
                                     {% csrf_token %}
                                     <td>
                                         <div class="input-group">
-                                            <input class="form-control" type="number" name="quantity"
+                                            <input class="form-control text-center" type="number" name="quantity"
                                                 placeholder="quantity" min="1" aria-label="Recipient's "
                                                 aria-describedby="my-addon" value="1">
 
